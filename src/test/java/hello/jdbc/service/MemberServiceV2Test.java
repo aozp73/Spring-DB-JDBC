@@ -1,7 +1,7 @@
 package hello.jdbc.service;
 
 import hello.jdbc.domain.Member;
-import hello.jdbc.repository.MemberRepositoryV1;
+import hello.jdbc.repository.MemberRepositoryV2;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,36 +15,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * 기본 동작, 트랜잭션 없어서 문제 발생하는 경우
+ * 트랜잭션 - 커넥션 파라미터 전달 방식 동기화
  */
-class MemberServiceV1Test {
-    public static final String MEMBER_A = "memberA";
-    public static final String MEMBER_B = "memberB";
-    public static final String MEMBER_EX = "ex";
+class MemberServiceV2Test {
 
-    private MemberRepositoryV1 memberRepository;
-    private MemberServiceV1 memberService;
+    private MemberRepositoryV2 memberRepository;
+    private MemberServiceV2 memberService;
 
     @BeforeEach
     void before() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource(URL, USERNAME, PASSWORD);
-        memberRepository = new MemberRepositoryV1(dataSource);
-        memberService = new MemberServiceV1(memberRepository);
+        memberRepository = new MemberRepositoryV2(dataSource);
+        memberService = new MemberServiceV2(dataSource, memberRepository);
     }
-
     @AfterEach
     void after() throws SQLException {
-        memberRepository.delete(MEMBER_A);
-        memberRepository.delete(MEMBER_B);
-        memberRepository.delete(MEMBER_EX);
+        memberRepository.delete("memberA");
+        memberRepository.delete("memberB");
+        memberRepository.delete("ex");
     }
 
     @Test
     @DisplayName("정상 이체")
     void accountTransfer() throws SQLException {
         // given
-        Member memberA = new Member(MEMBER_A, 10000);
-        Member memberB = new Member(MEMBER_B, 10000);
+        Member memberA = new Member("memberA", 10000);
+        Member memberB = new Member("memberB", 10000);
         memberRepository.save(memberA);
         memberRepository.save(memberB);
 
@@ -62,8 +58,8 @@ class MemberServiceV1Test {
     @DisplayName("이체중 예외 발생")
     void accountTransferEx() throws SQLException {
         // given
-        Member memberA = new Member(MEMBER_A, 10000);
-        Member memberEx = new Member(MEMBER_EX, 10000);
+        Member memberA = new Member("memberA", 10000);
+        Member memberEx = new Member("ex", 10000);
         memberRepository.save(memberA);
         memberRepository.save(memberEx);
 
@@ -72,12 +68,11 @@ class MemberServiceV1Test {
                 memberService.accountTransfer(memberA.getMemberId(), memberEx.getMemberId(), 2000))
                 .isInstanceOf(IllegalStateException.class);
 
-        // then
         Member findMemberA = memberRepository.findById(memberA.getMemberId());
         Member findMemberEx = memberRepository.findById(memberEx.getMemberId());
 
-        // memberA의 돈만 2000원 줄었고, ex의 돈은 10000원 그대로
-        assertThat(findMemberA.getMoney()).isEqualTo(8000);
+        // memberA의 돈이 롤백 되어야함
+        assertThat(findMemberA.getMoney()).isEqualTo(10000);
         assertThat(findMemberEx.getMoney()).isEqualTo(10000);
     }
 }
