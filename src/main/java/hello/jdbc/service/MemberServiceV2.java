@@ -1,7 +1,6 @@
 package hello.jdbc.service;
 
 import hello.jdbc.domain.Member;
-import hello.jdbc.repository.MemberRepositoryV1;
 import hello.jdbc.repository.MemberRepositoryV2;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,7 @@ public class MemberServiceV2 {
         Connection con = dataSource.getConnection();
 
         try {
-            con.setAutoCommit(false); //트랜잭션 시작
+            con.setAutoCommit(false); // 트랜잭션 시작
 
             // 비즈니스 로직
             businessLogic(con, fromId, toId, money);
