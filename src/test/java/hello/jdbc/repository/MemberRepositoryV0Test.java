@@ -1,9 +1,7 @@
 package hello.jdbc.repository;
 
-import hello.jdbc.connection.repository.MemberRepositoryV0;
 import hello.jdbc.domain.Member;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
@@ -11,7 +9,6 @@ import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 class MemberRepositoryV0Test {
