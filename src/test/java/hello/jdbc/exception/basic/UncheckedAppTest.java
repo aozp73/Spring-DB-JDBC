@@ -59,7 +59,7 @@ public class UncheckedAppTest {
             try {
                 runSQL();
             } catch (SQLException e) {
-                throw new RuntimeSQLException(e);
+                throw new RuntimeSQLException();
             }
         }
 
