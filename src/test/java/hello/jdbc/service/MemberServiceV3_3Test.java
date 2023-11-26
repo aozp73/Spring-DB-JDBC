@@ -46,10 +46,10 @@ class MemberServiceV3_3Test {
         DataSource dataSource() {
             return new DriverManagerDataSource(URL, USERNAME, PASSWORD);
         }
-        @Bean
-        PlatformTransactionManager transactionManager() {
-            return new DataSourceTransactionManager(dataSource());
-        }
+//        @Bean
+//        PlatformTransactionManager transactionManager() {
+//            return new DataSourceTransactionManager(dataSource());
+//        }
         @Bean
         MemberRepositoryV3 memberRepositoryV3() {
             return new MemberRepositoryV3(dataSource());
